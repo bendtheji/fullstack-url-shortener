@@ -1,0 +1,57 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: go_url_shortener
+      MYSQL_USER: mysql_user
+      MYSQL_PASSWORD: mysql_pw
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql/
+    healthcheck:
+        test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+        timeout: 20s
+        retries: 10
+  migrate:
+    image: migrate/migrate
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/migrations
+    command: ["-path", "/migrations", "-database", "mysql://mysql_user:mysql_pw@tcp(mysql:3306)/go_url_shortener", "up"]
+
+  backend:
+    build:
+      context: ./backend/go_url_shortener
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USERNAME: mysql_user
+      DB_PASSWORD: mysql_pw
+      DB_DATABASE: go_url_shortener
+      ORIGIN_ALLOWED: "http://localhost:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  frontend:
+    build:
+      context: ./frontend/react-url-shortener
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      REACT_APP_GO_BACKEND_HOST: "http://localhost:8090"
+volumes:
+  mysql_data:
