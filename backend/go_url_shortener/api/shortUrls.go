@@ -16,8 +16,8 @@ type CreateShortUrlRequest struct {
 	Description string `json:"description"`
 }
 
-type GetShortUrlRequest struct {
-	Url string `json:"long_url"`
+type CreateShortUrlResponse struct {
+	ShortUrl string `json:"short_url"`
 }
 
 func CreateShortUrlHandler(w http.ResponseWriter, r *http.Request) {
@@ -76,8 +76,15 @@ func CreateShortUrlHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	res := CreateShortUrlResponse{ShortUrl: crc32hashString}
+	jsonData, err := json.Marshal(res)
+	if err != nil {
+		apiError.HandleApiError(w, err)
+		return
+	}
+
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprint(w, "Short URL created")
+	w.Write(jsonData)
 }
 
 func ListShortUrlHandler(w http.ResponseWriter, r *http.Request) {
@@ -93,10 +100,16 @@ func ListShortUrlHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	jsonData, err := json.Marshal(list)
+	if err != nil {
+		apiError.HandleApiError(w, err)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", os.Getenv("ORIGIN_ALLOWED"))
-	json.NewEncoder(w).Encode(list)
 	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 func GetShortUrlHandler(w http.ResponseWriter, r *http.Request) {
