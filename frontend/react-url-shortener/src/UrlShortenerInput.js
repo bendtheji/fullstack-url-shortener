@@ -7,15 +7,26 @@ function UrlShortenerInput({updateShortUrlList}) {
     const [longUrl, setLongUrl] = useState('')
     const [description, setDescription] = useState('')
     const [errorMsg, setErrorMsg] = useState('')
+
+    function findEmptyFields(...args) {
+      const emptyFields = [];
+      
+      args.forEach((arg) => {
+          for (let key in arg) {
+              if (arg[key] === '') {
+                  emptyFields.push(key);
+              }
+          }
+      });
+      
+      return emptyFields;
+    }
   
     function handleClick() {
-      if (longUrl === '' || description === '') {
+      let emptyFields = findEmptyFields({longUrl}, {description})
+      if (emptyFields.length > 0) {
         let missing = "Please fill in missing fields: "
-        let fields = [
-          longUrl === '' ? 'longUrl' : '',
-          description === '' ? 'description' : '',
-        ].filter(e => e !== '').join(', ')
-        setErrorMsg(missing + fields)
+        setErrorMsg(missing + emptyFields.join(', '))
         return
       }
 
