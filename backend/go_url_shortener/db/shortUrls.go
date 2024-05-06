@@ -42,7 +42,7 @@ func GetShortUrl(ctx context.Context, db *sql.DB, str string) (string, error) {
 	return url.LongUrl, nil
 }
 
-func GetLongUrl(ctx context.Context, db *sql.DB, str string) (string, error) {
+func GetShortUrlByLongUrl(ctx context.Context, db *sql.DB, str string) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 

@@ -47,7 +47,7 @@ func CreateShortUrlHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if long url exists
-	found, err := dbPackage.GetLongUrl(r.Context(), db, req.Url)
+	found, err := dbPackage.GetShortUrlByLongUrl(r.Context(), db, req.Url)
 	if found != "" {
 		apiError.HandleApiError(w, apiError.HandleError(apiError.DuplicateLongURL))
 		return
