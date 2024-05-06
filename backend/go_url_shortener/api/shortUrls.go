@@ -32,13 +32,42 @@ func CreateShortUrlHandler(w http.ResponseWriter, r *http.Request) {
 	var req CreateShortUrlRequest
 	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		// TODO: handle decode request error
+		apiError.HandleApiError(w, apiError.HandleError(fmt.Errorf("%w: %w", apiError.ReqUnmarshalTypeErr, err)))
+		return
 	}
 
-	// hash the longurl
-	crc32hashString := fmt.Sprintf("%08x", crc32.Checksum([]byte(req.Url), crc32.IEEETable))
+	if req.Url == "" {
+		apiError.HandleApiError(w, apiError.HandleError(apiError.MissingLongURL))
+		return
+	}
 
-	// check if hash has been used before
+	if req.Description == "" {
+		apiError.HandleApiError(w, apiError.HandleError(apiError.MissingDescription))
+		return
+	}
+
+	// check if long url exists
+	found, err := dbPackage.GetLongUrl(r.Context(), db, req.Url)
+	if found != "" {
+		apiError.HandleApiError(w, apiError.HandleError(apiError.DuplicateLongURL))
+		return
+	}
+
+	longUrl := req.Url
+	// hash the longurl
+	var crc32hashString string
+	for {
+		crc32hashString = fmt.Sprintf("%08x", crc32.Checksum([]byte(longUrl), crc32.IEEETable))
+
+		// check if hash has been used before
+		// if hasn't been used before, then we break out of the loop
+		// else we append the hash string to the long url and hash it again
+		found, err = dbPackage.GetShortUrl(r.Context(), db, crc32hashString)
+		if found == "" {
+			break
+		}
+		longUrl = longUrl + ":" + crc32hashString
+	}
 
 	// create row in table with the created hash
 	err = dbPackage.CreateShortUrl(r.Context(), db, req.Url, crc32hashString, req.Description)
@@ -84,7 +113,6 @@ func GetShortUrlHandler(w http.ResponseWriter, r *http.Request) {
 	// Call the GetUser function to fetch the user data from the database
 	longUrl, err := dbPackage.GetShortUrl(r.Context(), db, idStr)
 	if err != nil {
-		// TODO: handle this
 		apiError.HandleApiError(w, err)
 		return
 	}

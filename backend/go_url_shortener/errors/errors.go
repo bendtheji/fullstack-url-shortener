@@ -22,7 +22,9 @@ func (e *ApiError) ApiError() (int, string) {
 }
 
 var (
-	InvalidAccountIDErr = errors.New("invalid account id")
+	MissingLongURL      = errors.New("missing long url")
+	MissingDescription  = errors.New("missing description")
+	DuplicateLongURL    = errors.New("duplicate long url")
 	ReqUnmarshalTypeErr = errors.New("invalid request type")
 )
 
@@ -35,9 +37,13 @@ func HandleError(err error) *ApiError {
 	case errors.Is(err, sql.ErrNoRows):
 		return &ApiError{statusCode: http.StatusNotFound, message: err.Error()}
 
-	case errors.Is(err, InvalidAccountIDErr):
-		return &ApiError{statusCode: http.StatusBadRequest, message: err.Error()}
+	case errors.Is(err, DuplicateLongURL):
+		return &ApiError{statusCode: http.StatusConflict, message: err.Error()}
 	case errors.Is(err, ReqUnmarshalTypeErr):
+		return &ApiError{statusCode: http.StatusBadRequest, message: err.Error()}
+	case errors.Is(err, MissingLongURL):
+		return &ApiError{statusCode: http.StatusBadRequest, message: err.Error()}
+	case errors.Is(err, MissingDescription):
 		return &ApiError{statusCode: http.StatusBadRequest, message: err.Error()}
 
 	case errors.Is(err, context.DeadlineExceeded):

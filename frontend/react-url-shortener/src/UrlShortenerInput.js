@@ -9,6 +9,16 @@ function UrlShortenerInput({updateShortUrlList}) {
     const [errorMsg, setErrorMsg] = useState('')
   
     function handleClick() {
+      if (longUrl === '' || description === '') {
+        let missing = "Please fill in missing fields: "
+        let fields = [
+          longUrl === '' ? 'longUrl' : '',
+          description === '' ? 'description' : '',
+        ].filter(e => e !== '').join(', ')
+        setErrorMsg(missing + fields)
+        return
+      }
+
       axios.post(process.env.REACT_APP_GO_BACKEND_HOST + "/shortUrls", {
         long_url: longUrl,
         description: description
@@ -20,9 +30,13 @@ function UrlShortenerInput({updateShortUrlList}) {
         setDescription('')
         setErrorMsg('')
       }).catch(function(error){
+        console.log(error)
         switch (error.response.status) {
           case errors.STATUS_CONFLICT:
             setErrorMsg('Long URL has been shortened before. Please reuse the same shortened URL.')
+            break
+          case errors.BAD_REQUEST:
+            setErrorMsg('Bad Request: ' + error.response.data)
             break
           default:
             setErrorMsg('Something went wrong during the creation of the shortened URL. Please try again later.')
