@@ -30,7 +30,6 @@ function UrlShortenerInput({updateShortUrlList}) {
         setDescription('')
         setErrorMsg('')
       }).catch(function(error){
-        console.log(error)
         switch (error.response.status) {
           case errors.STATUS_CONFLICT:
             setErrorMsg('Long URL has been shortened before. Please reuse the same shortened URL.')
