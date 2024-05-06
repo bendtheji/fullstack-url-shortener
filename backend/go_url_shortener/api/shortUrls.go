@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	dbPackage "github.com/bendtheji/go_url_shortener/db"
+	apiError "github.com/bendtheji/go_url_shortener/errors"
 	"github.com/gorilla/mux"
 	"hash/crc32"
 	"net/http"
@@ -34,8 +35,6 @@ func CreateShortUrlHandler(w http.ResponseWriter, r *http.Request) {
 		// TODO: handle decode request error
 	}
 
-	// here we check if longURL is already in DB, req.Url
-
 	// hash the longurl
 	crc32hashString := fmt.Sprintf("%08x", crc32.Checksum([]byte(req.Url), crc32.IEEETable))
 
@@ -44,7 +43,8 @@ func CreateShortUrlHandler(w http.ResponseWriter, r *http.Request) {
 	// create row in table with the created hash
 	err = dbPackage.CreateShortUrl(r.Context(), db, req.Url, crc32hashString, req.Description)
 	if err != nil {
-		// TODO: handle create error
+		apiError.HandleApiError(w, err)
+		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
@@ -60,7 +60,7 @@ func ListShortUrlHandler(w http.ResponseWriter, r *http.Request) {
 
 	list, err := dbPackage.ListShortUrls(r.Context(), db)
 	if err != nil {
-		// TODO: handle this
+		apiError.HandleApiError(w, err)
 		return
 	}
 
@@ -85,6 +85,7 @@ func GetShortUrlHandler(w http.ResponseWriter, r *http.Request) {
 	longUrl, err := dbPackage.GetShortUrl(r.Context(), db, idStr)
 	if err != nil {
 		// TODO: handle this
+		apiError.HandleApiError(w, err)
 		return
 	}
 

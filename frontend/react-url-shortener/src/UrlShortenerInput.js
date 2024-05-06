@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import axios from 'axios'
+import { errors } from './errors';
 
 
 function UrlShortenerInput({updateShortUrlList}) {
     const [longUrl, setLongUrl] = useState('')
     const [description, setDescription] = useState('')
+    const [errorMsg, setErrorMsg] = useState('')
   
     function handleClick() {
       axios.post(process.env.REACT_APP_GO_BACKEND_HOST + "/shortUrls", {
@@ -16,7 +18,15 @@ function UrlShortenerInput({updateShortUrlList}) {
         })
         setLongUrl('')
         setDescription('')
+        setErrorMsg('')
       }).catch(function(error){
+        switch (error.response.status) {
+          case errors.STATUS_CONFLICT:
+            setErrorMsg('Long URL has been shortened before. Please reuse the same shortened URL.')
+            break
+          default:
+            setErrorMsg('Something went wrong during the creation of the shortened URL. Please try again later.')
+        }
       })
     }
   
@@ -40,6 +50,7 @@ function UrlShortenerInput({updateShortUrlList}) {
                 placeholder="www.youtube.com" value={longUrl} onChange={(e) => setLongUrl(e.target.value)}/>
                 </div>
                 <button type="button"  onClick={handleClick} className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Create Short URL</button>
+                {errorMsg !== '' ? <p className="mt-2 text-sm text-red-500 font-semibold">{errorMsg}</p> : ""}
             </div>
         </div>
         </>
