@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import axios from 'axios'
-import { errors } from './errors';
+import handleError, { errors } from './errors';
 
 
-function UrlShortenerInput({updateShortUrlList}) {
+function UrlShortenerInput({updateShortUrlList, setFetchListErr}) {
     const [longUrl, setLongUrl] = useState('')
     const [description, setDescription] = useState('')
     const [errorMsg, setErrorMsg] = useState('')
@@ -36,22 +36,11 @@ function UrlShortenerInput({updateShortUrlList}) {
       }).then(function(response) {
         axios.get(process.env.REACT_APP_GO_BACKEND_HOST + "/shortUrls").then((response) => {
             updateShortUrlList(response.data)
-        })
+        }).catch((error) => { setFetchListErr("An error occurred while fetching list. Please try again later.")})
         setLongUrl('')
         setDescription('')
         setErrorMsg('')
-      }).catch(function(error){
-        switch (error.response.status) {
-          case errors.STATUS_CONFLICT:
-            setErrorMsg('Long URL has been shortened before. Please reuse the same shortened URL.')
-            break
-          case errors.BAD_REQUEST:
-            setErrorMsg('Bad Request: ' + error.response.data)
-            break
-          default:
-            setErrorMsg('Something went wrong during the creation of the shortened URL. Please try again later.')
-        }
-      })
+      }).catch((error) => handleError(error.response.status, error.response.data, setErrorMsg))
     }
   
     return (

@@ -1,5 +1,4 @@
-
-function UrlShortenerList({shortUrlList}) {
+function UrlShortenerList({shortUrlList, fetchListErr}) {
   
     const rows = []
     for (let i = 0; i < shortUrlList.length; i++) {
@@ -20,28 +19,36 @@ function UrlShortenerList({shortUrlList}) {
                 List of Shortened URLs
             </p>
         </div>
-      <div className="mt-8 w-full block">
-        <div className="mx-auto w-8/12">
-        <div className="flex flex-col">
-            <div className="-m-1.5 w-full">
-            <div className="p-1.5 w-full inline-block align-middle">
-            <table className="w-full divide-y divide-gray-200 table-fixed">
-            <thead>
-                <tr>
-                <th scope="col" className="w-7/12 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Description</th>
-                <th scope="col" className="w-5/12 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Short URL</th>
-                </tr>
-            </thead>
-          <tbody className="divide-y divide-gray-200 w-full">
-            {rows}
-          </tbody>
-        </table>
-      </div>
-  </div>
-</div>
+        <div className="mt-8 w-full block">
+          <div className="mx-auto w-8/12">
+            <div className="flex flex-col">
+              <div className="-m-1.5 w-full">
+                <div className="p-1.5 w-full inline-block align-middle">
+                  <table className="w-full divide-y divide-gray-200 table-fixed">
+                    <thead>
+                        <tr>
+                        <th scope="col" className="w-7/12 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Description</th>
+                        <th scope="col" className="w-5/12 px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Short URL</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 w-full">
+                      {rows}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      </> : ""
+      </> : 
+      fetchListErr !== '' ? 
+      <>
+        <hr className="mx-auto w-8/12"></hr>
+        <div className="mx-auto w-8/12">
+          <p className="mt-2 text-sm text-red-500 font-semibold">{fetchListErr}</p> 
+        </div>
+      </>
+      : ""
     )
   }
 
