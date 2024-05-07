@@ -119,12 +119,12 @@ func GetShortUrlHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	// Get the 'id' parameter from the URL
+	// Get the 'shortUrlHash' parameter from the URL
 	vars := mux.Vars(r)
-	idStr := vars["id"]
+	shortUrlHash := vars["shortUrlHash"]
 
 	// Call the GetUser function to fetch the user data from the database
-	longUrl, err := dbPackage.GetShortUrl(r.Context(), db, idStr)
+	longUrl, err := dbPackage.GetShortUrl(r.Context(), db, shortUrlHash)
 	if err != nil {
 		apiError.HandleApiError(w, err)
 		return

@@ -21,7 +21,7 @@ func main() {
 
 	r.HandleFunc("/shortUrls", api.CreateShortUrlHandler).Methods("POST")
 	r.HandleFunc("/shortUrls", api.ListShortUrlHandler).Methods("GET")
-	r.HandleFunc("/shortUrls/{id}", api.GetShortUrlHandler).Methods("GET")
+	r.HandleFunc("/shortUrls/{shortUrlHash}", api.GetShortUrlHandler).Methods("GET")
 
 	log.Println("Server listening on :8090")
 	log.Fatal(http.ListenAndServe(":8090", corsMiddleware(r)))

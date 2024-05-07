@@ -227,7 +227,7 @@ func TestGetShortUrlHandler_happy_path(t *testing.T) {
 	clearTable()
 	r := mux.NewRouter()
 	r.HandleFunc("/shortUrls", CreateShortUrlHandler).Methods("POST")
-	r.HandleFunc("/shortUrls/{id}", GetShortUrlHandler).Methods("GET")
+	r.HandleFunc("/shortUrls/{shortUrlHash}", GetShortUrlHandler).Methods("GET")
 
 	// create record
 	payload := []byte(`{"long_url":"https://www.reddit.com/r/drums/","description":"Drums subreddit"}`)
@@ -262,7 +262,7 @@ func TestGetShortUrlHandler_happy_path(t *testing.T) {
 	clearTable()
 }
 
-func TestCreateShortUrlHandler_not_found(t *testing.T) {
+func TestGetShortUrlHandler_not_found(t *testing.T) {
 	setDBEnvConfig(t)
 	db.InitDbConfig()
 

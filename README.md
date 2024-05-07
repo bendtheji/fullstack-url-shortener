@@ -18,6 +18,7 @@ You can use Docker to start up this application. Navigate to the root project wi
 ```
 docker compose up -d
 ```
+You'll need to give it a few seconds to start up because of the database migration scripts.
 
 Then, on your browser, access `http://localhost:3000` and you can start using the app.
 
