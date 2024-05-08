@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"hash/crc32"
 	"net/http"
+	"net/url"
 	"os"
 )
 
@@ -38,6 +39,12 @@ func CreateShortUrlHandler(w http.ResponseWriter, r *http.Request) {
 
 	if req.Url == "" {
 		apiError.HandleApiError(w, apiError.HandleError(apiError.MissingLongURL))
+		return
+	}
+
+	parsedUrl, err := url.Parse(req.Url)
+	if err != nil || !parsedUrl.IsAbs() {
+		apiError.HandleApiError(w, apiError.HandleError(apiError.InvalidLongURL))
 		return
 	}
 

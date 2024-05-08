@@ -23,6 +23,7 @@ func (e *ApiError) ApiError() (int, string) {
 
 var (
 	MissingLongURL      = errors.New("missing long url")
+	InvalidLongURL      = errors.New("invalid long url")
 	MissingDescription  = errors.New("missing description")
 	DuplicateLongURL    = errors.New("duplicate long url")
 	ReqUnmarshalTypeErr = errors.New("invalid request type")
@@ -42,6 +43,8 @@ func HandleError(err error) *ApiError {
 	case errors.Is(err, ReqUnmarshalTypeErr):
 		return &ApiError{statusCode: http.StatusBadRequest, message: err.Error()}
 	case errors.Is(err, MissingLongURL):
+		return &ApiError{statusCode: http.StatusBadRequest, message: err.Error()}
+	case errors.Is(err, InvalidLongURL):
 		return &ApiError{statusCode: http.StatusBadRequest, message: err.Error()}
 	case errors.Is(err, MissingDescription):
 		return &ApiError{statusCode: http.StatusBadRequest, message: err.Error()}

@@ -96,6 +96,37 @@ func TestCreateShortUrlHandler_missing_long_url(t *testing.T) {
 	clearTable()
 }
 
+func TestCreateShortUrlHandler_long_url_not_valid(t *testing.T) {
+	setDBEnvConfig(t)
+	db.InitDbConfig()
+
+	clearTable()
+
+	payload := []byte(`{"long_url":"www.reddit.com","description":"Reddit"}`)
+	req, err := http.NewRequest("POST", "/shortUrls", bytes.NewBuffer(payload))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(CreateShortUrlHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
+	}
+
+	expected := "invalid long url"
+	if strings.TrimSpace(rr.Body.String()) != expected {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expected)
+	}
+
+	clearTable()
+}
+
 func TestCreateShortUrlHandler_missing_description(t *testing.T) {
 	setDBEnvConfig(t)
 	db.InitDbConfig()

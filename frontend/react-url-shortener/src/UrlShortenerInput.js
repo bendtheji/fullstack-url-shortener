@@ -21,12 +21,21 @@ function UrlShortenerInput({updateShortUrlList, setFetchListErr}) {
       
       return emptyFields;
     }
-  
+    
+    function isAbsoluteURL(str) {
+      return /^[a-z][a-z0-9+.-]*:/.test(str);
+    }
+
     function handleClick() {
       let emptyFields = findEmptyFields({longUrl}, {description})
       if (emptyFields.length > 0) {
         let missing = "Please fill in missing fields: "
         setErrorMsg(missing + emptyFields.join(', '))
+        return
+      }
+
+      if(!isAbsoluteURL(longUrl)) {
+        setErrorMsg("Please input absolute url only (e.g. https://www.youtube.com)")
         return
       }
 
@@ -60,7 +69,7 @@ function UrlShortenerInput({updateShortUrlList, setFetchListErr}) {
                 <div className='mb-8 w-full'>
                 <label htmlFor="input-label" className="block text-sm font-medium mb-2">URL</label>
                 <input type="text" id="input-label" className="py-3 px-6 block w-full border border-gray-400 rounded-lg text-sm disabled:opacity-50 disabled:pointer-events-none" 
-                placeholder="www.youtube.com" value={longUrl} onChange={(e) => setLongUrl(e.target.value)}/>
+                placeholder="https://www.youtube.com" value={longUrl} onChange={(e) => setLongUrl(e.target.value)}/>
                 </div>
                 <button type="button"  onClick={handleClick} className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Create Short URL</button>
                 {errorMsg !== '' ? <p className="mt-2 text-sm text-red-500 font-semibold">{errorMsg}</p> : ""}
